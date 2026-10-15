@@ -181,6 +181,8 @@ void print_pin(pin pins[], int i){
    printf("pos.x_mm = %s\n", pins[i].pos.x_mm);
    printf("pos.y_mm = %s\n", pins[i].pos.y_mm);
    printf("pos.orientation = %s\n", pins[i].pos.orientation);
+   printf("name = %s\n", pins[i].name);
+   printf("number = %s\n", pins[i].number);
 }
 
 int update_positions(pin pins[], size_t pin_amount, float y_interval, float x_interval){
@@ -207,10 +209,63 @@ int update_positions(pin pins[], size_t pin_amount, float y_interval, float x_in
          strcpy(pins[i].pos.y_mm, new_y_pos_mm);
          strcpy(pins[i].pos.orientation, new_orientation);
       }
-      print_pin(pins, i);
+      // print_pin(pins, i);
    }
    return 0;
 }
+
+int print_pins_to_file(char in_name[], char out_name[], int first_pin_line, int last_pin_line, pin pins[], size_t pin_amount){
+   char line[1024];
+   int line_number = 0;
+
+   FILE *fp = fopen(in_name, "r");
+   FILE *out_fp = fopen(out_name, "w");
+
+   printf("first_pin_line = %d\n", first_pin_line);
+   printf("last_pin_line = %d\n", last_pin_line);
+
+   // copy the part before pin data
+   while (fgets(line, sizeof(line), fp)) {
+      line_number++;
+      if (line_number < first_pin_line) {
+         fprintf(out_fp, "%s", line);
+         printf("%i b | %s",line_number, line);
+      }
+   }
+
+   // generate pin data form the pins struct
+   for (int i=0; i<pin_amount; i++) {
+      line_number++;
+      fprintf(out_fp, "         (pin passive line (at %s %s %s) (length 5.08)\n"
+                      "               (name \"%s\" (effects (font (size 1.27 1.27))))\n"
+                      "               (number \"%s\" (effects (font (size 1.27 1.27))))\n"
+                      "               )\n"
+              , pins[i].pos.x_mm, pins[i].pos.y_mm, pins[i].pos.orientation, pins[i].name, pins[i].number);
+      printf("%i p |  ",line_number);
+   }
+
+   // copy anything else after the pin data
+   rewind(fp);
+   line_number = 0;
+   // I know starting from the beggining is "inneficient"
+   while (fgets(line, sizeof(line), fp)) {
+      line_number++;
+      if (line_number > last_pin_line) {
+         fprintf(out_fp, "%s", line);
+      }
+   }
+
+   fclose(fp);
+   fclose(out_fp);
+   return 0;
+}
+
+// int append_non_pin_data(char data[]){
+//    FILE *out_fptr;
+//    out_fptr = fopen(name, "a");
+//    fprintf(out_fptr, data);
+//    return 0;
+// }
 
 int main(int argc, char *argv[])
 {
@@ -237,6 +292,14 @@ int main(int argc, char *argv[])
    printf("detected y interval = %f\n", y_interval);
 
    update_positions(pins, pin_amount, y_interval, x_interval);
+
+   char out_file_name_pre[] = "sorted-";
+   print_pins_to_file(argv[1], strcat(out_file_name_pre, argv[1]), 45, 224, pins, pin_amount);
+
+   //print all pins
+   // for (int i=0; i<pin_amount; i++) {
+   //    print_pin(pins, i);
+   // }
 
    // printf("\npin_amount = %d\n", pin_amount);
    // printf("pins[0].pos.x_mm = %s\n", pins[0].pos.x_mm);
