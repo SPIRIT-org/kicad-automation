@@ -269,8 +269,9 @@ int print_pins_to_file(char in_name[], char out_name[], int first_pin_line, int 
 
 int main(int argc, char *argv[])
 {
-   if (argc<2) {
-      printf("Usage: %s <symbol_file.kicad_sym>\n", argv[0]);
+   if (argc<4) {
+      printf("Usage: %s <symbol_file.kicad_sym>, <first_pin_line_number>, <last_pin_line_number>\n", argv[0]);
+      return 1;
    }
 
    FILE *fp = fopen(argv[1], "r");
@@ -294,7 +295,9 @@ int main(int argc, char *argv[])
    update_positions(pins, pin_amount, y_interval, x_interval);
 
    char out_file_name_pre[] = "sorted-";
-   print_pins_to_file(argv[1], strcat(out_file_name_pre, argv[1]), 45, 224, pins, pin_amount);
+
+   // 45 224
+   print_pins_to_file(argv[1], strcat(out_file_name_pre, argv[1]), atoi(argv[2]), atoi(argv[3]), pins, pin_amount);
 
    //print all pins
    // for (int i=0; i<pin_amount; i++) {
