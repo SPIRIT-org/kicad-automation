@@ -24,8 +24,8 @@
 #include <math.h>
 
 typedef struct position {
-   char x_mm[6];
-   char y_mm[6];
+   char x_mm[8];
+   char y_mm[8];
    char orientation[4]; //180 or 0
 } position;
 
@@ -187,7 +187,7 @@ void print_pin(pin pins[], int i){
 
 int update_positions(pin pins[], size_t pin_amount, float y_interval, float x_interval){
    //this will be the new position data
-   char new_x_pos_mm[6]={'0'}, new_y_pos_mm[6]={'0'}, new_orientation[4]={'0'};
+   char new_x_pos_mm[8]={'0'}, new_y_pos_mm[8]={'0'}, new_orientation[4]={'0'};
    int half_pin_amount = pin_amount/2; // it's late give me a break
 
    for (int i=0; i<pin_amount; i++){
@@ -260,13 +260,6 @@ int print_pins_to_file(char in_name[], char out_name[], int first_pin_line, int 
    return 0;
 }
 
-// int append_non_pin_data(char data[]){
-//    FILE *out_fptr;
-//    out_fptr = fopen(name, "a");
-//    fprintf(out_fptr, data);
-//    return 0;
-// }
-
 int main(int argc, char *argv[])
 {
    if (argc<4) {
@@ -291,6 +284,7 @@ int main(int argc, char *argv[])
 
    printf("detected x interval = %f\n", x_interval);
    printf("detected y interval = %f\n", y_interval);
+   printf("pin amount = %zu\n", pin_amount);
 
    update_positions(pins, pin_amount, y_interval, x_interval);
 
@@ -309,5 +303,6 @@ int main(int argc, char *argv[])
    // printf("pins[0].pos.y_mm = %s\n", pins[0].pos.y_mm);
 
    fclose(fp);
+   printf("finshed succesfuly");
    return EXIT_SUCCESS;
 }
